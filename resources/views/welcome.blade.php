@@ -52,11 +52,13 @@
         }
 
         .content-data {
-            padding-left: 40px;
+            /*padding-left: 40px;*/
         }
     </style>
 </head>
 <body>
+<input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <!-- Loader starts-->
 <div class="loader-wrapper">
     <div class="loader bg-white">
@@ -65,7 +67,15 @@
 </div>
 <!-- Loader ends-->
 <!-- page-wrapper Start-->
-<div class="page-wrapper" style="margin: 30px">
+<div class="page-wrapper" style="padding: 30px 100px 0px 30px">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="col-lg-6 offset-3" style="margin-bottom: 10px">
+                <input id="search_key" name="search_key" class="form-control" placeholder="Search Course Name">
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-2">
             <h6 class="side-filter">Categories</h6>
@@ -73,7 +83,8 @@
             <ul>
                 @foreach($categories as $category)
                     <li>
-                        <p class="filter-categoey" filter-categoey="{{$category->id}}" is-selected="0">{{$category->name}}</p>
+                        <p class="filter-categoey" filter-categoey="{{$category->id}}"
+                           is-selected="0">{{$category->name}}</p>
                     </li>
                 @endforeach
             </ul>
@@ -85,7 +96,7 @@
             <ul>
                 <li>
                     <p>
-                        <input name="filter_rate" type="radio" value="4.5"class="filter-rate" filter-rate="4.5">
+                        <input name="filter_rate" type="radio" value="4.5" class="filter-rate" filter-rate="4.5">
                         4.5
                     </p>
                 </li>
@@ -115,20 +126,23 @@
 
             <ul>
                 <li>
-                    <p >
-                        <input name="filter_level" type="checkbox" value="beginner" class="filter-level" filter-level="beginner">
+                    <p>
+                        <input name="filter_level" type="checkbox" value="beginner" class="filter-level"
+                               filter-level="beginner">
                         beginner
                     </p>
                 </li>
                 <li>
-                    <p >
-                        <input name="filter_level" type="checkbox" value="immediat" class="filter-level" filter-level="immediat">
+                    <p>
+                        <input name="filter_level" type="checkbox" value="immediat" class="filter-level"
+                               filter-level="immediat">
                         immediat
                     </p>
                 </li>
                 <li>
-                    <p >
-                        <input name="filter_level" type="checkbox" value="high" class="filter-level" filter-level="high">
+                    <p>
+                        <input name="filter_level" type="checkbox" value="high" class="filter-level"
+                               filter-level="high">
                         high
                     </p>
                 </li>
@@ -140,19 +154,19 @@
 
             <ul>
                 <li>
-                    <p >
+                    <p>
                         <input name="filter-time" type="checkbox" value="1" class="filter-time" filter-time="1">
                         less than 4 hrs
                     </p>
                 </li>
                 <li>
-                    <p >
+                    <p>
                         <input name="filter-time" type="checkbox" value="2" class="filter-time" filter-time="2">
                         less than 8 hrs
                     </p>
                 </li>
                 <li>
-                    <p >
+                    <p>
                         <input name="filter-time" type="checkbox" value="3" class="filter-time" filter-time="3">
                         more than 8 hrs
                     </p>
@@ -163,43 +177,17 @@
 
         <div class="col-lg-10 content-data">
             <div class="container">
-                <div class="row items">
-                    @foreach($courses as $course)
-                        <div class="col-lg-4" style="border:solid 1px gainsboro;padding: 5px;margin-bottom: 1px">
-                            <img height="130px" width="100%" src="{{asset('default.png')}}"
-                                 style="border-bottom:solid 1px gainsboro">
-                            <h5>{{$course->name}}</h5>
-                            <p>
-                                <i class="fa fa-user"></i>
-                                Author
-                            </p>
-                            <p>
-                                {{$course->description}}
-                            </p>
-                            @if($course->rate <1)
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                <i class="fa fa-star-o"></i>
-                                {{--<p>No rate found</p>--}}
-                            @else
-                                @for($i=0; $i<$course->rate; $i++)
-                                    <i class="fa fa-star"></i>
-                                @endfor
-                                @if($course->rate < 5)
-                                    @for($i=$course->rate; $i<5; $i++)
-                                        <i class="fa fa-star-o"></i>
-                                    @endfor
-                                @endif
-                            @endif
-                        </div>
-                    @endforeach
+                <div class="row items" id="post-data">
+                    @include('data')
+                </div>
+                <div class="ajax-load text-center" style="display:none">
+                    <p><img src="loading.gif">Loading More post</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <!-- latest jquery-->
 <script src="{{asset('cp/endless/assets/js/jquery-3.2.1.min.js')}}"></script>
 <!-- Bootstrap js-->
@@ -222,24 +210,42 @@
     var filledStar = '<span class="fa fa-star"></span>\n';
     var emptyStar = '<span class="fa fa-star-o"></span>\n';
 
+    $(document).on('keyup', '#search_key', function () {
+        var search_key = $(this).val();
 
-    $(document).on('click', '.filter-categoey', function () {
-        var category_id = $(this).attr("filter-categoey");
-        // var type = $("#type").val();
-        // var city_id = $(this).attr("city_id");
-        // var region_id = $('.region:checked').attr("region_id");
-        // var main_service_id = $('.main_service:checked').attr("main_service_id");
-
-        if (category_id || 1) {
+        if (search_key || 1) {
             $.ajax({
                 type: "GET",
-                url: "{{url('filter-courses')}}" + '?category_id=' + category_id ,
+                url: "{{url('filter-courses')}}" + '?search_key=' + search_key,
                 success: function (result) {
                     if (result) {
                         console.log(result);
                         $(".items").empty();
-                        $.each(result.courses, function (key, value) {
-                            plus_course(value.id, value.name,value.description, value.levels, value.rate);
+                        $.each(result.courses.data, function (key, value) {
+                            plus_course(value.id, value.name, value.description, value.levels, value.rate);
+                        });
+                    }
+                    if (result.length === 0) {
+                        console.log("datazero");
+                    }
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '.filter-categoey', function () {
+        var category_id = $(this).attr("filter-categoey");
+
+        if (category_id || 1) {
+            $.ajax({
+                type: "GET",
+                url: "{{url('filter-courses')}}" + '?category_id=' + category_id,
+                success: function (result) {
+                    if (result) {
+                        console.log(result);
+                        $(".items").empty();
+                        $.each(result.courses.data, function (key, value) {
+                            plus_course(value.id, value.name, value.description, value.levels, value.rate);
                         });
                     }
                     if (result.length === 0) {
@@ -255,13 +261,13 @@
         if (rate_value || 1) {
             $.ajax({
                 type: "GET",
-                url: "{{url('filter-courses')}}" + '?rate_value=' + rate_value ,
+                url: "{{url('filter-courses')}}" + '?rate_value=' + rate_value,
                 success: function (result) {
                     if (result) {
                         console.log(result);
                         $(".items").empty();
-                        $.each(result.courses, function (key, value) {
-                            plus_course(value.id, value.name,value.description, value.levels, value.rate);
+                        $.each(result.courses.data, function (key, value) {
+                            plus_course(value.id, value.name, value.description, value.levels, value.rate);
                         });
                     }
                     if (result.length === 0) {
@@ -275,19 +281,19 @@
     $(document).on('click', '.filter-level', function () {
         //var level = $(this).attr("filter-level");
         var levels = [];
-        $("input:checkbox[name=filter_level]:checked").each(function(){
+        $("input:checkbox[name=filter_level]:checked").each(function () {
             levels.push($(this).val());
         });
         if (levels || 1) {
             $.ajax({
                 type: "GET",
-                url: "{{url('filter-courses')}}" + '?levels=' + levels ,
+                url: "{{url('filter-courses')}}" + '?levels=' + levels,
                 success: function (result) {
                     if (result) {
                         console.log(result);
                         $(".items").empty();
-                        $.each(result.courses, function (key, value) {
-                            plus_course(value.id, value.name,value.description, value.levels, value.rate);
+                        $.each(result.courses.data, function (key, value) {
+                            plus_course(value.id, value.name, value.description, value.levels, value.rate);
                         });
                     }
                     if (result.length === 0) {
@@ -304,13 +310,13 @@
         if (time || 1) {
             $.ajax({
                 type: "GET",
-                url: "{{url('filter-courses')}}" + '?time=' + time ,
+                url: "{{url('filter-courses')}}" + '?time=' + time,
                 success: function (result) {
                     if (result) {
                         console.log(result);
                         $(".items").empty();
-                        $.each(result.courses, function (key, value) {
-                            plus_course(value.id, value.name,value.description, value.levels, value.rate);
+                        $.each(result.courses.data, function (key, value) {
+                            plus_course(value.id, value.name, value.description, value.levels, value.rate);
                         });
                     }
                     if (result.length === 0) {
@@ -332,15 +338,15 @@
             rate = rate.concat(emptyStar)
         }
         var new_course = '<div class="col-lg-4" style="border:solid 1px gainsboro;padding: 5px;margin-bottom: 1px">\n' +
-            '                            <img height="130px" width="100%" src="'+ img +'"\n' +
+            '                            <img height="130px" width="100%" src="' + img + '"\n' +
             '                                 style="border-bottom:solid 1px gainsboro">\n' +
-            '                            <h5>'+ course_name +'</h5>\n' +
+            '                            <h5>' + course_name + '</h5>\n' +
             '                            <p>\n' +
             '                                <i class="fa fa-user"></i>\n' +
             '                                Author\n' +
             '                            </p>\n' +
             '                            <p>\n' +
-            '                                '+ course_description +'\n' +
+            '                                ' + course_description + '\n' +
             '                            </p>\n' + rate +
             '                        </div>';
 
@@ -349,10 +355,42 @@
     }
 
 
-
-
 </script>
+<script type="text/javascript">
 
+    $(document).ready(function () {
+        var page = 1;
+        $(window).scroll(function () {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+                page++;
+                loadMoreData(page);
+            }
+        });
+    });
+
+
+    function loadMoreData(page) {
+        $.ajax(
+            {
+                url: '?page=' + page,
+                type: "get",
+                beforeSend: function () {
+                    $('.ajax-load').show();
+                }
+            })
+            .done(function (data) {
+                if (data.html == " ") {
+                    $('.ajax-load').html("No more records found");
+                    return;
+                }
+                $('.ajax-load').hide();
+                $("#post-data").append(data.html);
+            })
+            .fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('server not responding...');
+            });
+    }
+</script>
 
 </body>
 </html>

@@ -1,5 +1,5 @@
 @foreach($courses as $course)
-    <div class="col-lg-4" style="border:solid 1px gainsboro;padding: 5px;margin-bottom: 1px">
+    <div class="col-lg-4" style="border:solid 1px gainsboro;margin-bottom: 5px">
         <img height="130px" width="100%" src="{{asset('default.png')}}"
              style="border-bottom:solid 1px gainsboro">
         <h5>{{$course->name}}</h5>

@@ -54,14 +54,18 @@ class HomeController extends Controller
 
     public function filterCourses(Request $request)
     {
+        $search_key = $request->search_key;
         $category_id = $request->category_id;
         $rate_value = $request->rate_value;
         $levels = isset($request->levels) ? $request->levels : ['beginner', 'immediat', 'high'];
         $time = $request->time;
 //
         $builder = Course::whereActive(1);
+        if ($search_key) {
+            $builder->where('name','like','%'.$search_key.'%');
+        }
         if ($category_id) {
-            $builder->where('category_id',$request->category_id);
+            $builder->where('category_id',$category_id);
         }
         if ($rate_value) {
             $builder->where('rate',$rate_value);
@@ -82,7 +86,7 @@ class HomeController extends Controller
 
         }
 
-        $courses = $builder->orderBy('id','desc')->get();
+        $courses = $builder->orderBy('id','desc')->paginate(10);
         return response()->json([
             'courses' => $courses,
         ]);
